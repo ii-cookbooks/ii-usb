@@ -5,6 +5,6 @@ directory target_repo_dir
 
 # This is not idempotent, and is an ugly hack... fixme later
 execute 'rsync chef-repo onto usb' do
-  command "rsync -rlptDv #{node['ii-usb']['src-chef-repo']}/ #{target_repo_dir}/"
+  command "rsync -rlptDv --exclude /.cache --exclude /.chef/.cache --exclude /vendor #{node['ii-usb']['src-chef-repo']}/ #{target_repo_dir}/"
   # not_if 
 end

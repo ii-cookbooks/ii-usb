@@ -1,4 +1,4 @@
-#!/bin/sh
+!/bin/sh
 
 
 # The initramfs doesn't have chroot or dpkg, but our installer is mounted under /root!
@@ -13,7 +13,7 @@ plymouth show-splash
 
 $CHROOT chvt $TMPVT
 #cp -v /root/isodevice/chef-repo/cookbooks/ii-ubiquity/files/default/ubuntu_logo*png /lib/plymouth/themes/ubuntu-logo \
-$CHROOT dpkg -i /isodevice/cache/<%=::File.basename(node['ii-usb']['chef-deb']['src']['cache'])%> | tee -a /root/initramfs_command.log > /dev/tty$TMPVT
+$CHROOT dpkg -i /isodevice/cache/<%=node['chef_client']['package']['filename']%> | tee -a /root/initramfs_command.log > /dev/tty$TMPVT
 $CHROOT chef-solo -c /isodevice/ubiquity-initramfs-solo.rb | tee -a /root/initramfs_command.log > /dev/tty$TMPVT
 sleep <%=node['ii-usb']['chvt']['sleep'] %>
 $CHROOT chvt 7

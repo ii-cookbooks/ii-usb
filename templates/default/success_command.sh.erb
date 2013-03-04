@@ -6,11 +6,12 @@ chvt $TMPVT
 
 mount -o bind /isodevice /target/mnt
 cp -av /*log /target/root
-chroot /target dpkg -i /mnt/cache/<%=::File.basename(node['ii-usb']['chef-deb']['src']['cache'])%>
+chroot /target dpkg -i /mnt/cache/<%=node['chef_client']['package']['filename']%>
 
 
 # these three steps should be put into ii-ubiquity::success
 cp -av /isodevice/chef-repo /target/root/chef-repo
+cp -av /isodevice/cache /target/root/chef-repo/.chef/cache
 cp -a /isodevice/firstboot.sh /target/root
 sed -i 's_exit 0_bash /root/firstboot.sh_' /target/etc/rc.local; 
 

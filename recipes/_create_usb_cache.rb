@@ -3,7 +3,7 @@ directory usb_cache_dir
 
 # This is not idempotent, and is an ugly hack... fixme later
 execute 'rsync cache onto usb' do
-  command "rsync -rlptDv #{node['ii-usb']['src-chef-repo']}/.chef/cache/ #{usb_cache_dir}/"
+  command "rsync --modify-window=1 -rLptDv #{node['ii-usb']['src-chef-repo']}/.chef/cache/ #{usb_cache_dir}/"
   # not_if 
 end
 

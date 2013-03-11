@@ -6,9 +6,10 @@
 TMPVT=8
 CHROOT="/root/usr/sbin/chroot /root"
 
-cp -v /root/isodevice/chef-repo/cookbooks/ii-ubiquity/files/default/swedishChef.png /lib/plymouth/themes/ubuntu-logo/ubuntu_logo.png | tee -a /root/initramfs_command.log > /dev/tty$TMPVT 
-plymouth hide-splash
-plymouth show-splash
+# Interesting, but it looks ugly for now... only half of the chef displays
+#cp -v /root/isodevice/chef-repo/cookbooks/ii-ubiquity/files/default/swedishChef.png /lib/plymouth/themes/ubuntu-logo/ubuntu_logo.png | tee -a /root/initramfs_command.log > /dev/tty$TMPVT 
+#plymouth hide-splash
+#plymouth show-splash
 
 
 $CHROOT chvt $TMPVT

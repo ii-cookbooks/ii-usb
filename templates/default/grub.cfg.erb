@@ -15,6 +15,10 @@ loadfont /boot/grub/dejavu-sans-12.pf2
 loadfont /boot/grub/dejavu-sans-bold-14.pf2
 insmod gfxmenu
 insmod png
+# This isn't loaded by default in 12.04.2+
+insmod loopback
+# why dosn't the above load?
+insmod /boot/grub/x86_64-efi/loopback.mod
 set theme=/boot/grub/ii/theme.txt
 
 set menu_color_normal=white/black
@@ -25,16 +29,17 @@ set menu_color_highlight=black/light-gray
 set isofile="/cache/<%= @iso_name %>"
 
 # -- automatic-ubiquity # maybe-ubiquity 
-menuentry "ii-usb Boot Persistent Ubuntu" {
-  loopback loop $isofile
-	set gfxpayload=keep
-	linux	(loop)/casper/vmlinuz splash quiet noprompt noeject debug-ubiquity boot=casper iso-scan/filename=$isofile locale=en_US nox2apic persistent  preseed/early_command=/root/isodevice/initramfs-persistent_command.sh
-	initrd	(loop)/casper/initrd.lz
-}
+# menuentry "ii-usb Boot Persistent Ubuntu" {
+#   loopback loop $isofile
+# 	set gfxpayload=keep
+# 	linux	(loop)/casper/vmlinuz splash quiet noprompt noeject debug-ubiquity boot=casper iso-scan/filename=$isofile locale=en_US nox2apic persistent  preseed/early_command=/root/isodevice/initramfs-persistent_command.sh
+# 	initrd	(loop)/casper/initrd.lz
+# }
 
+# now that 12.04.2 mac only has EFI kernel is vmlinuz.efi
 menuentry "ii-usb Install Ubuntu to First Harddrive with Ubiquity" {
   loopback loop $isofile
 	set gfxpayload=keep
-	linux	(loop)/casper/vmlinuz splash quiet noprompt noeject debug-ubiquity boot=casper iso-scan/filename=$isofile file=/isodevice/preseed.seed locale=en_US nox2apic -- automatic-ubiquity # maybe-ubiquity 
+	linux	(loop)/casper/vmlinuz.efi splash quiet noprompt noeject debug-ubiquity boot=casper iso-scan/filename=$isofile file=/isodevice/preseed.seed locale=en_US nox2apic -- automatic-ubiquity # maybe-ubiquity 
 	initrd	(loop)/casper/initrd.lz
 }

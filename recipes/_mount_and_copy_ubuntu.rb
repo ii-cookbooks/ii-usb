@@ -7,14 +7,21 @@ mount node['ii-usb']['ubuntu-mountpoint'] do
   not_if "cat /proc/mounts | grep #{node['ii-usb']['ubuntu-mountpoint']}"
 end
 
-directory "#{node['ii-usb']['target-mountpoint']}/efi/boot" do
+# on 12.04.2 (and later?).... the EFI directory is uppercase
+ubuiso = search('ubuntu',"version:#{node['ii-usb']['ingredients']['ubuntu']['version']} AND arch:x86_64 flavor:desktop").first
+efi_boot = Chef::VersionConstraint.new(">= 12.04.2").include?(ubuiso['semantic_version']) ?   '/EFI/BOOT' : '/efi/boot'
+
+directory "#{node['ii-usb']['target-mountpoint']}#{efi_boot}" do
   recursive true
 end
 
-file "#{node['ii-usb']['target-mountpoint']}/efi/boot/bootx64.efi" do
-  content "#{node['ii-usb']['ubuntu-mountpoint']}/efi/boot/bootx64.efi"
-  backup false
-  provider Chef::Provider::File::Copy
+boot_files = Chef::VersionConstraint.new(">= 12.04.2").include?(ubuiso['semantic_version']) ? ['BOOTx64.EFI','grubx64.efi'] : ['bootx64.efi']
+boot_files.each do |boot_file|
+  file "#{node['ii-usb']['target-mountpoint']}#{efi_boot}/#{boot_file}" do
+    content "#{node['ii-usb']['ubuntu-mountpoint']}#{efi_boot}/#{boot_file}"
+    backup false
+    provider Chef::Provider::File::Copy
+  end
 end
 
 # execute "grub-install --boot-directory=#{node['ii-usb']['target-mountpoint']}/boot/grub/i386-pc #{node['ii-usb']['target-device']}" do

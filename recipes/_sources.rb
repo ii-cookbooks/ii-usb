@@ -1,24 +1,50 @@
 directory Chef::Config[:file_cache_path]
-#['ubuntu-iso','chef-deb'].each do |rf|
-['ubuntu-iso'].each do |rf|
-  remote_file node['ii-usb'][rf]['src']['cache'] do
-    source node['ii-usb'][rf]['src']['url']
-    checksum node['ii-usb'][rf]['src']['checksum']
-    backup false
-    not_if {File.exists? node['ii-usb'][rf]['src']['cache']}
+
+node['ii-usb']['ingredients'].each do |data_bag,attrs|
+  # getting all the the artifacts may be expensive
+  # only retrieve if it hasn't been set in a role
+  if not node['ii-usb']['ingredients'][data_bag]['version']
+    all_artifacts = search(data_bag,"*:*")
+    node.default['ii-usb']['ingredients'][data_bag]['version']=all_artifacts.map{|v|
+      v['version']}.flatten.uniq.sort.last
+  end
+  search(data_bag,"version:#{node['fileserver']['ingredients'][data_bag]['version']}").each do |ing|
+
+    cache_file = File.join(Chef::Config[:file_cache_path], ing['filename'])
+    # Populate the cache and checksums
+    chksumf="#{cache_file}.checksum"
+    rf = remote_file cache_file do
+      source ing['source']
+      checksum ing['checksum']
+      not_if do
+        (::File.exists? chksumf) && (open(chksumf).read == ing['checksum'])
+      end
+    end
+    rf.run_action :create
+
+    cs=file "#{cache_file}.checksum" do
+      content ing['checksum']
+    end
+    cs.run_action :create
   end
 end
 
-cc = search('chef',"*:*")
-node.normal['chef_client']['version']=cc.map{|v| v['version']}.flatten.uniq.sort.last
-search_string = "os_#{node.platform}:#{node.platform_version} AND version:#{node['chef_client']['version']} AND arch:#{node.kernel.machine}"
-chef_package = search('chef',search_string).first
-node.normal['chef_client']['package'] = chef_package
 
-chef_package_cached = File.join(Chef::Config[:file_cache_path],chef_package['filename'])
-remote_file chef_package_cached do
-  source chef_package['source']
-  checksum chef_package['checksum']
-  backup false
-  not_if {File.exists? chef_package_cached}
-end
+# go ahead and point to the version of ubuntu we want
+ubiso = search('ubuntu',"version:#{node['ii-usb']['ingredients']['ubuntu']['version']} AND arch:x86_64 flavor:desktop").first
+node.default['ii-usb']['ubuntu-iso']['src'] = {
+  'url' => ubiso['source'],
+  'checksum' => ubiso['checksum'],
+  'cache' => File.join(Chef::Config[:file_cache_path],ubiso['filename'])
+}
+
+# go ahead and point to the version of ubuntu we want
+chef_client = search('chef',"version:#{node['ii-usb']['ingredients']['chef']['version']} AND arch:x86_64 AND os_ubuntu:12.04").first
+node.default['ii-usb']['chef-deb']['src'] = {
+  'url' => chef_client['source'],
+  'checksum' => chef_client['checksum'],
+  'cache' => File.join(Chef::Config[:file_cache_path],chef_client['filename'])
+}
+
+# used in template
+node.default['chef_client']['package']['filename'] = chef_client['filename']

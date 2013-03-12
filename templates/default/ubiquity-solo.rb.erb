@@ -12,11 +12,12 @@ file_backup_path "/tmp/backup"
 solo_json_file = "#{current_dir}/cache/<%= @stage %>-solo.json"
 open(solo_json_file,'w+') do |f|
   f.write(
-    {
+    JSON.pretty_generate({
       "run_list" => [
         "recipe[ii-ubiquity::<%= @stage %>]"
-        ]
-    }.to_json
+        ],
+      "synergy" => { "server" => "<%= node.ipaddress %>"}
+    })
     )
 end if not ::File.exists? solo_json_file
 json_attribs solo_json_file

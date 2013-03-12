@@ -26,8 +26,25 @@ Name=From Scratch
 Comment[en_US]=From Scratch
 Comment=From Scratch
 EOF
-chmod 755 /home/<%=node['ii-usb']['target-user']['login']%>/.config/autostart/laptop.training.desktop
-chmod 755 /home/<%=node['ii-usb']['target-user']['login']%>/Desktop/laptop.training.desktop
+chmod 755 /home/<%=node['ii-usb']['target-user']['login']%>/.config/autostart/from-scratch.desktop
+chmod 755 /home/<%=node['ii-usb']['target-user']['login']%>/Desktop/from-scratch.desktop
+
+# this is for demos, should probably wrap in an if attribute
+cat <<EOF| tee /home/<%=node['ii-usb']['target-user']['login']%>/.config/autostart/synergy.desktop \
+         | tee /home/<%=node['ii-usb']['target-user']['login']%>/Desktop/synergy.desktop
+[Desktop Entry]
+Type=Application
+Exec=synergyc <%= node['ipaddress'] %>
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name[en_US]=Run Synergy Client
+Name=Run Synergy Client
+Comment[en_US]=Run Synergy Client
+Comment=Run Synergy Client
+EOF
+chmod 755 /home/<%=node['ii-usb']['target-user']['login']%>/.config/autostart/synegry.desktop
+chmod 755 /home/<%=node['ii-usb']['target-user']['login']%>/Desktop/synergy.desktop
 
 chown -R <%=node['ii-usb']['target-user']['login']%>:<%=node['ii-usb']['target-user']['login']%> /home/<%=node['ii-usb']['target-user']['login']%>
 

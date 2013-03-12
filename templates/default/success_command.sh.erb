@@ -4,6 +4,9 @@ exec > >(tee /target/root/success_command.log | logger -t success-command -s 2>/
 set +e -x
 chvt $TMPVT
 
+export DISPLAY=:0.0
+#gnome-terminal -t late-chef -e 'tail -F /target/root/success_command.log'
+
 mount -o bind /isodevice /target/mnt
 cp -av /*log /target/root
 chroot /target dpkg -i /mnt/cache/<%=node['chef_client']['package']['filename']%>
@@ -14,7 +17,7 @@ chroot /target dpkg -i /mnt/cache/<%=node['chef_client']['package']['filename']%
 btrfs subvolume create /target/home/ii
 cp -av /isodevice/chef-repo /target/home/ii/chef-repo
 btrfs subvolume create /target/home/ii/chef-repo/.chef/cache
-cp -av /isodevice/cache /target/home/ii/chef-repo/.chef/cache
+cp -av /isodevice/cache /target/home/ii/chef-repo/.chef
 cp -a /isodevice/firstboot.sh /target/root
 sed -i 's_exit 0_bash /root/firstboot.sh_' /target/etc/rc.local; 
 

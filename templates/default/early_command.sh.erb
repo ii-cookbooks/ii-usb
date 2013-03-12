@@ -1,9 +1,13 @@
 #!/bin/sh
+
 TMPVT=9
 exec > >(tee /early_command.log | logger -t early-command -s 2>/dev/tty$TMPVT ) 2>&1
 set +e -x
 
 chvt $TMPVT
+# this is our debug terminal
+echo DISPLAY=:0.0 xterm -rv | at now
+echo 'Starting Chef Solo Run'
 chef-solo -c /isodevice/ubiquity-early-solo.rb 
 sleep <%=node['ii-usb']['chvt']['sleep'] %>
 chvt 7

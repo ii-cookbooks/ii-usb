@@ -30,11 +30,12 @@ chmod 755 /home/<%=node['ii-usb']['target-user']['login']%>/.config/autostart/fr
 chmod 755 /home/<%=node['ii-usb']['target-user']['login']%>/Desktop/from-scratch.desktop
 
 # this is for demos, should probably wrap in an if attribute
+# and this entire firstboot logic should be in a firstboot recipe
 cat <<EOF| tee /home/<%=node['ii-usb']['target-user']['login']%>/.config/autostart/synergy.desktop \
          | tee /home/<%=node['ii-usb']['target-user']['login']%>/Desktop/synergy.desktop
 [Desktop Entry]
 Type=Application
-Exec=synergyc <%= node['ipaddress'] %>
+Exec=synergyc --name '`dmidecode -s system-product-name | sed s/,/_/`_`dmidecode -s system-serial-number | sed s/,/_/`' <%= node['ipaddress'] %>
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
